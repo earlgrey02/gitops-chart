@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: example
+  namespace: {{ index .Values "argo-cd" "namespaceOverride" }}
+  annotations:
+    notifications.argoproj.io/subscribe.sync-operation-change.discord: ""
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/helm/examples
+    targetRevision: HEAD
+    path: charts/hello-world
+    helm:
+      valueFiles:
+      - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
