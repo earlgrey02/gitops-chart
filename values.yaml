@@ -1,0 +1,65 @@
+ingress-nginx:
+  namespaceOverride: ingress-nginx
+  controller:
+    service:
+      type: NodePort
+    admissionWebhooks:
+      enabled: false
+jenkins:
+  namespaceOverride: jenkins
+  controller:
+    admin:
+      username: admin
+      password: root
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 2000m
+        memory: 3800Mi
+    podSecurityContextOverride:
+      runAsUser: 0
+      runAsGroup: 1000
+    containerSecurityContext:
+      runAsUser: 0
+      runAsGroup: 1000
+      readOnlyRootFilesystem: false
+    jenkinsUriPrefix: /jenkins
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      path: /jenkins
+      pathType: Prefix
+  persistence:
+    enable: true
+    accessMode: ReadWriteOnce
+    size: 8Gi
+argo-cd:
+  global:
+    domain: ""
+  namespaceOverride: argocd
+  configs:
+    params:
+      server.insecure: true
+      server.basehref: /argocd
+      server.rootpath: /argocd
+    secret:
+      argocdServerAdminPassword: $2a$10$RWpZ6fkKYfdiR2kdqbmX..u7JovSTTzU7PZemf3TCdRkG6BIdu1D2 # root
+  controller:
+    replicas: 1
+  dex:
+    enabled: false
+  server:
+    replicas: 1
+    ingress:
+      enabled: true
+      annotations:
+        nginx.ingress.kubernetes.io/backend-protocol: HTTP
+      ingressClassName: nginx
+      path: /argocd
+  notifications:
+    cm:
+      create: false
+    secret:
+      create: false
